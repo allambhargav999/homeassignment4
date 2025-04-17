@@ -1,167 +1,111 @@
-# homeassignment4
-Bhargav sai Allam 700752883
-### QUESTION 1
-import spacy
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-import nltk
+README: NLP Tasks and Solutions
+This document explains the tasks completed in this repository. Each task demonstrates different aspects of NLP using popular libraries like SpaCy and HuggingFace Transformers.
 
-# Make sure stopwords are available
-nltk.download('stopwords', force=True)
+1. NLP Preprocessing Pipeline
+Goal: Implement a pipeline to preprocess text data.
 
-# Load spaCy English model
-import subprocess
-import sys
+Steps:
 
-# Install spaCy model if not already available
-try:
-    nlp = spacy.load("en_core_web_sm")
-except:
-    subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-    nlp = spacy.load("en_core_web_sm")
+Tokenize the sentence into individual words.
 
-def nlp_pipeline_spacy(sentence):
-    doc = nlp(sentence)
+Remove common English stopwords (e.g., "the", "in", "are").
 
-    # 1. Original Tokens
-    tokens = [token.text for token in doc]
-    print("1. Original Tokens:")
-    print(tokens)
+Apply stemming to reduce words to their root form.
 
-    # 2. Remove stopwords
-    stop_words = set(stopwords.words('english'))
-    tokens_without_stopwords = [token.text for token in doc if token.text.lower() not in stop_words and token.is_alpha]
-    print("\n2. Tokens Without Stopwords:")
-    print(tokens_without_stopwords)
+Example:
+Input: "NLP techniques are used in virtual assistants like Alexa and Siri."
+Output:
 
-    # 3. Stemming
-    stemmer = PorterStemmer()
-    stemmed_words = [stemmer.stem(word.lower()) for word in tokens_without_stopwords]
-    print("\n3. Stemmed Words:")
-    print(stemmed_words)
+Tokens: List of all words.
 
-# Example
-sentence = "NLP techniques are used in virtual assistants like Alexa and Siri."
-nlp_pipeline_spacy(sentence)
+Tokens without stopwords: Only meaningful words.
 
-#OUTPUT :
-    
-    [nltk_data] Downloading package stopwords to /root/nltk_data...
-[nltk_data]   Unzipping corpora/stopwords.zip.
-1. Original Tokens:
-['NLP', 'techniques', 'are', 'used', 'in', 'virtual', 'assistants', 'like', 'Alexa', 'and', 'Siri', '.']
+Stemmed words: Reduced to root form.
 
-2. Tokens Without Stopwords:
-['NLP', 'techniques', 'used', 'virtual', 'assistants', 'like', 'Alexa', 'Siri']
+2. Named Entity Recognition (NER) with SpaCy
+Goal: Perform Named Entity Recognition (NER) using SpaCy.
 
-3. Stemmed Words:
-['nlp', 'techniqu', 'use', 'virtual', 'assist', 'like', 'alexa', 'siri']
+Steps:
 
+Load a pre-trained SpaCy model.
 
+Extract entities such as PERSON, LOCATION, DATE, etc.
 
-###QUESION 2 
+Print the entity text, label, and position in the sentence.
 
-import spacy
+Example:
+Input: "Barack Obama served as the 44th President of the United States and won the Nobel Peace Prize in 2009."
+Output:
 
-# Load the small English model
-nlp = spacy.load("en_core_web_sm")
+Text: "Barack Obama", Label: "PERSON", Start: 0, End: 12
 
-# Input sentence
-sentence = "Barack Obama served as the 44th President of the United States and won the Nobel Peace Prize in 2009."
+Text: "2009", Label: "DATE", Start: 93, End: 97
 
-# Process the sentence
-doc = nlp(sentence)
+3. Scaled Dot-Product Attention
+Goal: Implement Scaled Dot-Product Attention.
 
-# Extract and print named entities
-for ent in doc.ents:
-    print(f"Text: {ent.text}, Label: {ent.label_}, Start: {ent.start_char}, End: {ent.end_char}")
+Steps:
 
-#OUTPUT:
-Text: Barack Obama, Label: PERSON, Start: 0, End: 12
-Text: 44th, Label: ORDINAL, Start: 27, End: 31
-Text: the United States, Label: GPE, Start: 45, End: 62
-Text: the Nobel Peace Prize, Label: WORK_OF_ART, Start: 71, End: 92
-Text: 2009, Label: DATE, Start: 96, End: 100
+Calculate the dot product of Query (Q) and Key (Kᵀ) matrices.
 
-###QUESTION 3
-import numpy as np
+Scale by √d (key dimension).
 
-def scaled_dot_product_attention(Q, K, V):
-    # Step 1: Dot product of Q and K transpose
-    scores = np.dot(Q, K.T)
+Apply softmax to get attention weights.
 
-    # Step 2: Scale scores
-    d_k = K.shape[1]  # key dimension
-    scaled_scores = scores / np.sqrt(d_k)
+Multiply weights by Value (V) to get the final output.
 
-    # Step 3: Apply softmax to get attention weights
-    def softmax(x):
-        exp_x = np.exp(x - np.max(x, axis=-1, keepdims=True))  # for numerical stability
-        return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
+Example:
 
-    attention_weights = softmax(scaled_scores)
+Input matrices:
+Q = [[1, 0, 1, 0], [0, 1, 0, 1]]
+K = [[1, 0, 1, 0], [0, 1, 0, 1]]
+V = [[1, 2, 3, 4], [5, 6, 7, 8]]
 
-    # Step 4: Multiply weights by V
-    output = np.dot(attention_weights, V)
+Output:
 
-    print("1. Attention Weights (after softmax):")
-    print(attention_weights)
+Attention Weights: After softmax.
 
-    print("\n2. Final Output (Attention x V):")
-    print(output)
+Final Output: Result of multiplying attention weights by V.
 
-# Test inputs
-Q = np.array([[1, 0, 1, 0], [0, 1, 0, 1]])
-K = np.array([[1, 0, 1, 0], [0, 1, 0, 1]])
-V = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])
+4. Sentiment Analysis using HuggingFace Transformers
+Goal: Perform sentiment analysis using the HuggingFace Transformers library.
 
-scaled_dot_product_attention(Q, K, V)
-#OUTPUT :
-1. Attention Weights (after softmax):
-[[0.73105858 0.26894142]
- [0.26894142 0.73105858]]
+Steps:
 
-2. Final Output (Attention x V):
-[[2.07576569 3.07576569 4.07576569 5.07576569]
- [3.92423431 4.92423431 5.92423431 6.92423431]]
+Load a pre-trained sentiment analysis model.
 
-###QUESTION 4 :
-from transformers import pipeline
+Analyze a given sentence for sentiment (positive/negative).
 
-# Load a pre-trained sentiment analysis pipeline
-sentiment_pipeline = pipeline("sentiment-analysis")
+Print the sentiment label and confidence score.
 
-# Input sentence
-sentence = "Despite the high price, the performance of the new MacBook is outstanding."
+Example:
+Input: "Despite the high price, the performance of the new MacBook is outstanding."
+Output:
 
-# Get the sentiment prediction
-result = sentiment_pipeline(sentence)[0]
+Sentiment: "POSITIVE"
 
-# Print the sentiment label and confidence score
-print(f"Sentiment: {result['label']}")
-print(f"Confidence Score: {result['score']}")
+Confidence Score: 0.9992
 
+How to Run the Code
+Install dependencies:
 
-#OUTPUT :
-No model was supplied, defaulted to distilbert/distilbert-base-uncased-finetuned-sst-2-english and revision 714eb0f (https://huggingface.co/distilbert/distilbert-base-uncased-finetuned-sst-2-english).
-Using a pipeline without specifying a model name and revision in production is not recommended.
-/usr/local/lib/python3.11/dist-packages/huggingface_hub/utils/_auth.py:94: UserWarning: 
-The secret `HF_TOKEN` does not exist in your Colab secrets.
-To authenticate with the Hugging Face Hub, create a token in your settings tab (https://huggingface.co/settings/tokens), set it as secret in your Google Colab and restart your session.
-You will be able to reuse this secret in all of your notebooks.
-Please note that authentication is recommended but still optional to access public models or datasets.
-  warnings.warn(
-config.json: 100%
- 629/629 [00:00<00:00, 47.5kB/s]
-Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
-WARNING:huggingface_hub.file_download:Xet Storage is enabled for this repo, but the 'hf_xet' package is not installed. Falling back to regular HTTP download. For better performance, install the package with: `pip install huggingface_hub[hf_xet]` or `pip install hf_xet`
-model.safetensors: 100%
- 268M/268M [00:01<00:00, 235MB/s]
-tokenizer_config.json: 100%
- 48.0/48.0 [00:00<00:00, 4.11kB/s]
-vocab.txt: 100%
- 232k/232k [00:00<00:00, 14.6MB/s]
-Device set to use cuda:0
-Sentiment: POSITIVE
-Confidence Score: 0.9998302459716797
+For SpaCy: pip install spacy
 
+For HuggingFace Transformers: pip install transformers
+
+Download models:
+
+SpaCy:
+python -m spacy download en_core_web_sm
+
+HuggingFace models are downloaded automatically when running the sentiment analysis task.
+
+Run the scripts:
+Execute the scripts or function calls in your preferred Python environment.
+
+Conclusion
+These tasks showcase how NLP tasks can be solved using pre-trained models.
+
+Pre-trained models save time, improve performance, and require less data for fine-tuning.
+
+The tasks cover basic text processing, entity recognition, attention mechanisms, and sentiment analysis.
